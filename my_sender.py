@@ -152,12 +152,13 @@ class Sender:
 
             # Retransmit all outstanding frames (go-back-n)
             seq = self.base
-            while seq != self.next_seq:
-                frame = self.buffer[seq]
-                raw = frame.to_bytes_all()
-                self.channel.send(raw, direction="sender_to_receiver")
-                print(f"Sender: retransmitted frame seq={seq}")
-                seq += 1
+            while seq < self.next_seq:
+                frame = self.buffer.get(seq)
+                if frame is not None:
+                    raw = frame.to_bytes_all()
+                    self.channel.send(raw, direction="sender_to_receiver")
+                    print(f"Sender: retransmitted frame seq={seq}")
+                seq += 1 
 
     def deliver_to_network(self, payload: bytes):
         """
